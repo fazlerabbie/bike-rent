@@ -4,7 +4,7 @@ const adminAuthentication = require("../middelware/adminAuthentication");
 
 
 //dashboard authentication
-module.exports = router.get('/dashboard', (req, res) =>{
+module.exports = router.get('/dashboard', adminAuthentication, (req, res) =>{
 
     res.send(req.rootAdmin);
 })

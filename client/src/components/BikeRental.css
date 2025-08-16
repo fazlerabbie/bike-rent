@@ -1,0 +1,471 @@
+/* Modern Enhanced Bike Rental Styles */
+
+.bike-container {
+  margin: 0;
+  padding: 0;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  background: white;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  overflow: hidden;
+  position: relative;
+}
+
+.bike-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #2563eb, #3b82f6, #60a5fa);
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.bike-container:hover::before {
+  transform: scaleX(1);
+}
+
+.bike-container:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(37, 99, 235, 0.15);
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+.bikedivRentbike {
+  text-align: center;
+  padding: 20px;
+}
+
+.bikedivRentbike img {
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.bikedivRentbike h4 {
+  color: #2c3e50;
+  font-size: 1.5em;
+  margin: 10px 0 5px 0;
+  font-weight: 600;
+}
+
+.bikedivRentbike p {
+  color: #7f8c8d;
+  font-size: 1.1em;
+  margin: 5px 0;
+}
+
+.price-info {
+  color: #27ae60 !important;
+  font-weight: bold !important;
+  font-size: 1.2em !important;
+  background: #e8f5e8;
+  padding: 5px 10px;
+  border-radius: 15px;
+  display: inline-block;
+  margin: 10px 0;
+}
+
+.specsDivRentbike {
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+.specsDivRentbike h3 {
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.4em;
+}
+
+.bike-specs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.bike-specs p {
+  background: white;
+  padding: 10px;
+  border-radius: 6px;
+  margin: 5px 0;
+  border-left: 4px solid #3498db;
+}
+
+.formDivRentbike {
+  padding: 25px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 12px;
+  margin: 10px 0;
+}
+
+.booking-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.booking-header h3 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+  font-size: 1.5em;
+}
+
+.price-display {
+  color: #27ae60;
+  font-size: 1.3em;
+  font-weight: bold;
+  background: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  display: inline-block;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #2c3e50;
+  font-weight: 500;
+  font-size: 1.1em;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1.1em;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-input:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+}
+
+.total-price {
+  margin-top: 10px;
+  padding: 10px;
+  background: #e8f5e8;
+  border-radius: 6px;
+  color: #27ae60;
+  font-weight: bold;
+  text-align: center;
+  font-size: 1.1em;
+}
+
+/* Cart Badge Styles */
+.cart-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.cart-badge {
+  background: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 0.8em;
+  font-weight: bold;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .bike-container {
+    margin: 10px;
+    padding: 15px;
+  }
+  
+  .bike-specs {
+    grid-template-columns: 1fr;
+  }
+  
+  .bikedivRentbike img {
+    width: 90% !important;
+  }
+  
+  .form-input {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+/* Loading States */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+/* Enhanced Button Spacing */
+.bikedbtn {
+  margin: 5px;
+  min-width: 120px;
+}
+
+/* Modern Search Container Styles */
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 12px;
+  background: rgba(249, 250, 251, 0.8);
+  border-radius: 50px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  transition: all 0.3s ease;
+}
+
+.search-container:hover {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.search-input {
+  flex: 0 0 auto;
+  width: 250px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 500;
+  background: transparent;
+  color: #374151;
+  transition: all 0.3s ease;
+  outline: none;
+  font-family: 'Inter', sans-serif;
+}
+
+.search-input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1f2937;
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.search-btn {
+  border-radius: 20px !important;
+  padding: 8px 16px !important;
+  font-weight: 600;
+  font-size: 0.85em !important;
+  min-width: auto !important;
+}
+
+.clear-btn {
+  border-radius: 15px !important;
+  padding: 6px 12px !important;
+  font-size: 0.8em !important;
+  min-width: auto !important;
+}
+
+/* Cart Styles */
+.cart-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 80vh;
+}
+
+.cart-title {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-size: 2.5em;
+}
+
+.empty-cart {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.empty-cart h3 {
+  color: #7f8c8d;
+  margin-bottom: 15px;
+  font-size: 1.8em;
+}
+
+.empty-cart p {
+  color: #95a5a6;
+  margin-bottom: 30px;
+  font-size: 1.2em;
+}
+
+.cart-items {
+  margin-bottom: 30px;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.cart-item:hover {
+  transform: translateY(-2px);
+}
+
+.item-image {
+  flex: 0 0 150px;
+  margin-right: 20px;
+}
+
+.item-image img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.item-details {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.item-details h4 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+  font-size: 1.3em;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.quantity-input {
+  width: 80px;
+  padding: 8px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.item-price {
+  text-align: right;
+  flex: 0 0 150px;
+}
+
+.item-price .total-price {
+  font-size: 1.4em;
+  font-weight: bold;
+  color: #27ae60;
+  margin-bottom: 10px;
+}
+
+.cart-summary {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.summary-details {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.summary-details h3 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+}
+
+.summary-details h2 {
+  color: #27ae60;
+  font-size: 2em;
+  margin-top: 15px;
+}
+
+.checkout-actions {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .cart-item {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .item-image {
+    flex: none;
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+
+  .item-details {
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+
+  .checkout-actions {
+    flex-direction: column;
+  }
+}
+
+/* Success Animation */
+@keyframes successPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.success-animation {
+  animation: successPulse 0.6s ease-in-out;
+}

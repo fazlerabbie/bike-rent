@@ -1,39 +1,58 @@
 import React, {useState, useContext} from 'react'
 import { NavLink, useHistory } from "react-router-dom";
+import "../registerStyle.css";
 
 import { AdminContext } from "../App"
 
 const AdminSignin = () => {
-
 
     const {adminstate, dispatchadmin} = useContext(AdminContext)
 
     const adminHistory = useHistory();
     const [adminName, setAdminName] = useState('');
     const [adminPassword, setAdminPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState('');
 
     const signinAdmin =  async (e) =>{
         e.preventDefault();
 
-        const res = await fetch('/signinAdmin', {
-            method : "POST",
-            headers : {
-                "Content-Type" : "application/json"
-            },
-            body:JSON.stringify({
-                adminName,
-                adminPassword
-            })
-        });
-        const data = res.json();
-
-        if(res.status === 400 || !data){
-            window.alert("invalid Credentials");
+        if (!adminName.trim() || !adminPassword.trim()) {
+            setMessage("Please enter both admin name and password");
+            return;
         }
-        else{
-            dispatchadmin({type: "ADMIN", payload:true})
-            window.alert("Signin Successfull");
-            adminHistory.push("/dashboard");
+
+        setLoading(true);
+        setMessage("");
+
+        try {
+            const res = await fetch('/signinAdmin', {
+                method : "POST",
+                headers : {
+                    "Content-Type" : "application/json"
+                },
+                body:JSON.stringify({
+                    adminName,
+                    adminPassword
+                })
+            });
+            const data = await res.json();
+
+            if(res.status === 400 || !data){
+                setMessage(data.error || "Invalid credentials. Please try again.");
+            }
+            else{
+                dispatchadmin({type: "ADMIN", payload:true})
+                setMessage("Login successful! Redirecting to dashboard...");
+                setTimeout(() => {
+                    adminHistory.push("/dashboard");
+                }, 1500);
+            }
+        } catch (error) {
+            setMessage("Network error. Please check your connection and try again.");
+            console.error("Admin login error:", error);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -70,22 +89,46 @@ const AdminSignin = () => {
                                 <div className="user-details">
 
                                     <div className="input-box">
-                                        <span className="details">User Name</span>
-                                        <input type="text" value={adminName} onChange={(e)=>setAdminName(e.target.value)} placeholder="Enter your user name" />
+                                        <span className="details">Admin Name</span>
+                                        <input
+                                            type="text"
+                                            value={adminName}
+                                            onChange={(e)=>{setAdminName(e.target.value); setMessage("");}}
+                                            placeholder="Enter your admin name"
+                                            disabled={loading}
+                                        />
                                     </div>
 
                                     <div className="input-box">
                                         <span className="details">Password</span>
-                                        <input type="password" value={adminPassword} onChange={(e)=>setAdminPassword(e.target.value)} placeholder="Enter your password" />
+                                        <input
+                                            type="password"
+                                            value={adminPassword}
+                                            onChange={(e)=>{setAdminPassword(e.target.value); setMessage("");}}
+                                            placeholder="Enter your password"
+                                            disabled={loading}
+                                        />
                                     </div>
 
                                 </div>
 
+                                {message && (
+                                    <div className={`message ${message.includes('successful') ? 'success' : 'error'}`}>
+                                        {message}
+                                    </div>
+                                )}
                                 <div className="button">
-                                    <input type="submit" value="signin" onClick={signinAdmin} />
+                                    <input
+                                        type="submit"
+                                        value={loading ? "Signing in..." : "Sign In"}
+                                        onClick={signinAdmin}
+                                        disabled={loading}
+                                        className={loading ? 'loading' : ''}
+                                    />
                                 </div>
                             </form>
                             <button className="btn"><NavLink className="nav-link" to="/signin">Signin As User</NavLink></button>
+                            <button className="btn"><NavLink className="nav-link" to="/adminsignup">Create Admin Account</NavLink></button>
                         </div>
                     </div>
                 </div>

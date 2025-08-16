@@ -1,5 +1,6 @@
 import React, {useState, useContext} from 'react'
 import { NavLink, useHistory } from "react-router-dom";
+import "../registerStyle.css";
 
 import { UserContext } from "../App"
 
@@ -13,31 +14,49 @@ const Signin = () => {
     const history = useHistory();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState('');
 
 
     const signinUser =  async (e) =>{
         e.preventDefault();
 
-        const res = await fetch('/signin', {
-            method : "POST",
-            headers : {
-                "Content-Type" : "application/json"
-            },
-            body:JSON.stringify({
-                email,
-                password
-            })
-        });
-        const data = res.json();
-
-        if(res.status === 400 || !data){
-            window.alert("invalid Credentials");
+        if (!email.trim() || !password.trim()) {
+            setMessage("Please enter both email and password");
+            return;
         }
-        else{
 
-            dispatch({type: "USER", payload:true})
-            window.alert("Signin Successfull");
-            history.push("/");
+        setLoading(true);
+        setMessage("");
+
+        try {
+            const res = await fetch('/signin', {
+                method : "POST",
+                headers : {
+                    "Content-Type" : "application/json"
+                },
+                body:JSON.stringify({
+                    email,
+                    password
+                })
+            });
+            const data = await res.json();
+
+            if(res.status === 400 || !data){
+                setMessage(data.error || "Invalid credentials. Please try again.");
+            }
+            else{
+                dispatch({type: "USER", payload:true})
+                setMessage("Login successful! Redirecting to home...");
+                setTimeout(() => {
+                    history.push("/");
+                }, 1500);
+            }
+        } catch (error) {
+            setMessage("Network error. Please check your connection and try again.");
+            console.error("User login error:", error);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -74,18 +93,41 @@ const Signin = () => {
 
                                     <div className="input-box">
                                         <span className="details">Email</span>
-                                        <input type="text" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="Enter your email" />
+                                        <input
+                                            type="email"
+                                            value={email}
+                                            onChange={(e)=>{setEmail(e.target.value); setMessage("");}}
+                                            placeholder="Enter your email"
+                                            disabled={loading}
+                                        />
                                     </div>
 
                                     <div className="input-box">
                                         <span className="details">Password</span>
-                                        <input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="Enter your password" />
+                                        <input
+                                            type="password"
+                                            value={password}
+                                            onChange={(e)=>{setPassword(e.target.value); setMessage("");}}
+                                            placeholder="Enter your password"
+                                            disabled={loading}
+                                        />
                                     </div>
 
                                 </div>
 
+                                {message && (
+                                    <div className={`message ${message.includes('successful') ? 'success' : 'error'}`}>
+                                        {message}
+                                    </div>
+                                )}
                                 <div className="button">
-                                    <input type="submit"  value="signin" onClick={signinUser} />
+                                    <input
+                                        type="submit"
+                                        value={loading ? "Signing in..." : "Sign In"}
+                                        onClick={signinUser}
+                                        disabled={loading}
+                                        className={loading ? 'loading' : ''}
+                                    />
                                 </div>
                             </form>
 

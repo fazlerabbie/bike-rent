@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useContext} from 'react'
 import {NavLink} from "react-router-dom";
+import Message from "../common/Message";
 
 import { AdminContext } from "../../App"
 
@@ -28,19 +29,45 @@ useEffect(() => {
     getallrenttbikes();
 }, [])
 
-let bikeIdFromDashBoard;
-  const deleteUser = (e) =>{
-    bikeIdFromDashBoard = e.target.id;
+const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
-    return fetch("/deleteRentBikeFromDashboard", {
-      method: "POST",
-      headers:{
-          "Content-Type" : "application/json"
-      },
-      body: JSON.stringify({
-        bikeIdFromDashBoard
-      })
-  })
+  const deleteBike = async (e) => {
+    const bikeIdFromDashBoard = e.target.id;
+
+    if (!window.confirm("Are you sure you want to delete this bike? This action cannot be undone.")) {
+      return;
+    }
+
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const response = await fetch("/deleteRentBikeFromDashboard", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          bikeIdFromDashBoard
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage("Bike deleted successfully!");
+        // Refresh the bikes list
+        getallrenttbikes();
+      } else {
+        setMessage(data.message || "Failed to delete bike");
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+      setMessage("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
 
@@ -123,6 +150,15 @@ let bikeIdFromDashBoard;
 
             <h1 className="heading"><span>Available Rent Bikes</span></h1>
 
+            {message && (
+              <Message
+                type={message.includes('successfully') ? 'success' : 'error'}
+                message={message}
+                onClose={() => setMessage("")}
+                autoClose={true}
+              />
+            )}
+
             <table className = "salecartable">
                   <thead>
                     <tr>
@@ -143,7 +179,16 @@ let bikeIdFromDashBoard;
                     <td >{getBikes.rent}</td>
                     <td >{getBikes.price} Taka</td>
                     <td >{getBikes.availability} hours</td>
-                    <td ><button id = {getBikes._id} onClick={deleteUser} className="btn"><i className="fa fa-trash"></i></button></td>
+                    <td>
+                      <button
+                        id={getBikes._id}
+                        onClick={deleteBike}
+                        className="btn delete-btn"
+                        disabled={loading}
+                      >
+                        {loading ? <i className="fa fa-spinner fa-spin"></i> : <i className="fa fa-trash"></i>}
+                      </button>
+                    </td>
                 </tr> 
             </tbody>
          

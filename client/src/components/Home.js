@@ -1,18 +1,22 @@
-import React, {useState, useEffect, useContext} from 'react'
+import React, {useState, useEffect, useContext, useCallback} from 'react'
 import { NavLink } from "react-router-dom";
+import LoadingButton from "./common/LoadingButton";
+import Message from "./common/Message";
 
 import { UserContext } from "../App"
 
 const Home = () => {
     const [userData, setUserData] = useState({name:"", email:"", phone:"", message:""});
-    
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState("");
+    const [errors, setErrors] = useState({});
 
-    
+
     const {state, dispatch} = useContext(UserContext)
 
     
 
-    const userContact = async () =>{
+    const userContact = useCallback(async () => {
         try {
             const res = await fetch ('/getdata', {
                 method: 'GET',
@@ -22,8 +26,8 @@ const Home = () => {
             });
 
             const data = await res.json();
-            
-            setUserData({...userData, name:data.name, email:data.email, phone:data.phone});
+
+            setUserData(prevData => ({...prevData, name:data.name, email:data.email, phone:data.phone}));
 
 
             if(!res.status === 200){
@@ -34,61 +38,103 @@ const Home = () => {
         } catch (error) {
             console.log(error)
         }
-    }
+    }, []);
 
     useEffect(() => {
        userContact();
-    }, [])
+    }, [userContact])
 
     const handleInputs = (e) =>{
         const name = e.target.name;
         const value = e.target.value;
 
         setUserData({...userData, [name]:value });
+
+        // Clear errors when user starts typing
+        if (errors[name]) {
+            setErrors({...errors, [name]: ""});
+        }
+        setMessage("");
+    }
+
+    const validateContactForm = () => {
+        const newErrors = {};
+
+        if (!userData.name.trim()) newErrors.name = "Name is required";
+        if (!userData.email.trim()) newErrors.email = "Email is required";
+        else if (!/\S+@\S+\.\S+/.test(userData.email)) newErrors.email = "Email is invalid";
+        if (!userData.phone.trim()) newErrors.phone = "Phone number is required";
+        else if (!/^\d{10}$/.test(userData.phone.replace(/\D/g, ''))) newErrors.phone = "Phone number must be 10 digits";
+        if (!userData.message.trim()) newErrors.message = "Message is required";
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     }
 
     const sendMessage = async (e) =>{
         e.preventDefault();
 
-        const {name, email, phone, message}= userData;
-
-        const res = await fetch('/contact',{
-            method:'POST',
-            headers: {
-                "Content-Type" : "application/json"
-            },
-            body : JSON.stringify({
-                name, email, phone, message
-            })
-        });
-
-        const data = await res.json();
-
-        if(!data){
-            console.log("message not sent");
+        if (!validateContactForm()) {
+            setMessage("Please fix the errors above");
+            return;
         }
-        else{
-            alert("Message send")
-            setUserData({...userData, message:""});
+
+        setLoading(true);
+        setMessage("");
+
+        try {
+            const {name, email, phone, message}= userData;
+
+            const res = await fetch('/contact',{
+                method:'POST',
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body : JSON.stringify({
+                    name, email, phone, message
+                })
+            });
+
+            const data = await res.json();
+
+            if(res.status === 200 && data){
+                setMessage("Message sent successfully! We'll get back to you soon.");
+                setUserData({name:"", email:"", phone:"", message:""});
+            } else {
+                setMessage(data.error || "Failed to send message. Please try again.");
+            }
+        } catch (error) {
+            setMessage("Network error. Please check your connection and try again.");
+            console.error("Contact form error:", error);
+        } finally {
+            setLoading(false);
         }
     }
 
     
     
     const Loginbutton= () =>{
-        
+
         if(state){
-            return <div> 
-                <button ><NavLink className="btn" to="/signout">logout</NavLink></button>      
+            return <div>
+                <LoadingButton variant="secondary" size="small">
+                    <NavLink className="nav-link" to="/signout" style={{color: 'inherit', textDecoration: 'none'}}>
+                        Logout
+                    </NavLink>
+                </LoadingButton>
             </div>
         }
         else{
-            return <div>  
-                    <button ><NavLink className="btn" to="/signin">login</NavLink></button>
-                    
+            return <div>
+                <LoadingButton variant="primary" size="small">
+                    <NavLink className="nav-link" to="/signin" style={{color: 'inherit', textDecoration: 'none'}}>
+                        Login
+                    </NavLink>
+                </LoadingButton>
+
                 </div>
         }
-    
+
     }
 
 
@@ -126,7 +172,11 @@ const Home = () => {
 
 <img data-speed="5" className="home-parallax" src="/image/home.png" alt=""/>
 
-<NavLink className="btn" to="/exploreRentBikes">Bike Showcase</NavLink>
+<LoadingButton variant="primary" size="large">
+    <NavLink to="/exploreRentBikes" style={{color: 'inherit', textDecoration: 'none'}}>
+        Bike Showcase
+    </NavLink>
+</LoadingButton>
 
 </section>
 
@@ -213,11 +263,68 @@ const Home = () => {
 
     <form method="POST">
         <h3>get in touch</h3>
-        <input type="text" name="name" value={userData.name} onChange={handleInputs} placeholder="your name" className="box"/>
-        <input type="email" name="email" value={userData.email} onChange={handleInputs} placeholder="your email" className="box"/>
-        <input type="tel" name="phone" value={userData.phone} onChange={handleInputs} placeholder="your phone" className="box"/>
-        <textarea placeholder="your message" name="message" value={userData.message} onChange={handleInputs} className="box" cols="30" rows="10"></textarea>
-        <input type="submit" value="send message" onClick={sendMessage} className="btn"/>
+        <input
+            type="text"
+            name="name"
+            value={userData.name}
+            onChange={handleInputs}
+            placeholder="your name"
+            className={`box ${errors.name ? 'error' : ''}`}
+            disabled={loading}
+        />
+        {errors.name && <span className="error-message">{errors.name}</span>}
+
+        <input
+            type="email"
+            name="email"
+            value={userData.email}
+            onChange={handleInputs}
+            placeholder="your email"
+            className={`box ${errors.email ? 'error' : ''}`}
+            disabled={loading}
+        />
+        {errors.email && <span className="error-message">{errors.email}</span>}
+
+        <input
+            type="tel"
+            name="phone"
+            value={userData.phone}
+            onChange={handleInputs}
+            placeholder="your phone"
+            className={`box ${errors.phone ? 'error' : ''}`}
+            disabled={loading}
+        />
+        {errors.phone && <span className="error-message">{errors.phone}</span>}
+
+        <textarea
+            placeholder="your message"
+            name="message"
+            value={userData.message}
+            onChange={handleInputs}
+            className={`box ${errors.message ? 'error' : ''}`}
+            cols="30"
+            rows="10"
+            disabled={loading}
+        ></textarea>
+        {errors.message && <span className="error-message">{errors.message}</span>}
+
+        {message && (
+            <Message
+                type={message.includes('successfully') ? 'success' : 'error'}
+                message={message}
+                onClose={() => setMessage("")}
+            />
+        )}
+
+        <LoadingButton
+            type="submit"
+            loading={loading}
+            onClick={sendMessage}
+            variant="primary"
+            size="large"
+        >
+            {loading ? "Sending..." : "Send Message"}
+        </LoadingButton>
     </form>
 
 </div>
@@ -225,49 +332,107 @@ const Home = () => {
 </section>
 
 <section className="footer" id="footer">
+    <div className="footer-content">
+        <div className="footer-top">
+            <div className="footer-brand">
+                <NavLink className="footer-logo" to="/">
+                    <span>Bike</span>Book
+                </NavLink>
+                <p className="footer-description">
+                    Your trusted partner for premium bike rentals. Experience the freedom of the road with our well-maintained fleet of motorcycles and bicycles.
+                </p>
+                <div className="footer-social">
+                    <a href="#" className="social-link" aria-label="Facebook">
+                        <i className="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" className="social-link" aria-label="Twitter">
+                        <i className="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" className="social-link" aria-label="Instagram">
+                        <i className="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" className="social-link" aria-label="LinkedIn">
+                        <i className="fab fa-linkedin"></i>
+                    </a>
+                    <a href="#" className="social-link" aria-label="YouTube">
+                        <i className="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
 
-<div className="box-container">
+            <div className="footer-links">
+                <div className="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><NavLink to="/">Home</NavLink></li>
+                        <li><NavLink to="/rentbike">Rent Bikes</NavLink></li>
+                        <li><NavLink to="/exploreRentBikes">Bike Showcase</NavLink></li>
+                        <li><a href="#services">Testimonials</a></li>
+                        <li><a href="#contact">Contact Us</a></li>
+                    </ul>
+                </div>
 
-    <div className="box">
-        <h3>our branches</h3>
-        <a href="#"> <i className="fas fa-map-marker-alt"></i> Mirpur </a>
-        <a href="#"> <i className="fas fa-map-marker-alt"></i> Farmgate </a>
-        <a href="#"> <i className="fas fa-map-marker-alt"></i> Badda </a>
-        <a href="#"> <i className="fas fa-map-marker-alt"></i> Aftabnagar </a>
-        <a href="#"> <i className="fas fa-map-marker-alt"></i> Uttara </a>
+                <div className="footer-column">
+                    <h3>Our Services</h3>
+                    <ul>
+                        <li><a href="#">Motorcycle Rental</a></li>
+                        <li><a href="#">Bicycle Rental</a></li>
+                        <li><a href="#">Long-term Lease</a></li>
+                        <li><a href="#">Corporate Packages</a></li>
+                        <li><a href="#">Insurance Coverage</a></li>
+                    </ul>
+                </div>
+
+                <div className="footer-column">
+                    <h3>Our Locations</h3>
+                    <ul>
+                        <li><i className="fas fa-map-marker-alt"></i> Mirpur, Dhaka</li>
+                        <li><i className="fas fa-map-marker-alt"></i> Farmgate, Dhaka</li>
+                        <li><i className="fas fa-map-marker-alt"></i> Badda, Dhaka</li>
+                        <li><i className="fas fa-map-marker-alt"></i> Aftabnagar, Dhaka</li>
+                        <li><i className="fas fa-map-marker-alt"></i> Uttara, Dhaka</li>
+                    </ul>
+                </div>
+
+                <div className="footer-column">
+                    <h3>Contact Info</h3>
+                    <ul>
+                        <li>
+                            <i className="fas fa-phone"></i>
+                            <div>
+                                <span>+880 1234-567890</span>
+                                <span>+880 1111-222333</span>
+                            </div>
+                        </li>
+                        <li>
+                            <i className="fas fa-envelope"></i>
+                            <span>info@bikebook.com</span>
+                        </li>
+                        <li>
+                            <i className="fas fa-clock"></i>
+                            <div>
+                                <span>Mon - Fri: 9:00 AM - 8:00 PM</span>
+                                <span>Sat - Sun: 10:00 AM - 6:00 PM</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div className="footer-bottom">
+            <div className="footer-bottom-content">
+                <div className="copyright">
+                    <p>&copy; 2024 BikeBook. All rights reserved. Made with ❤️ by AH Milon</p>
+                </div>
+                <div className="footer-bottom-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div className="box">
-        <h3>quick links</h3>
-        <a href="#"> <i className="fas fa-arrow-right"></i> home </a>
-        <a href="#"> <i className="fas fa-arrow-right"></i> vehicles </a>
-        <a href="#"> <i className="fas fa-arrow-right"></i> services </a>
-        <a href="#"> <i className="fas fa-arrow-right"></i> featured </a>
-        <a href="#"> <i className="fas fa-arrow-right"></i> reviews </a>
-        <a href="#"> <i className="fas fa-arrow-right"></i> contact </a>
-    </div>
-
-    <div className="box">
-        <h3>contact info</h3>
-        <a href="#"> <i className="fas fa-phone"></i> +123-456-7890 </a>
-        <a href="#"> <i className="fas fa-phone"></i> +111-222-3333 </a>
-        <a href="#"> <i className="fas fa-envelope"></i> bikebook@gmail.com </a>
-        <a href="#"> <i className="fas fa-map-marker-alt"></i> Aftabnagar, Badda, Dhaka </a>
-    </div>
-
-    <div className="box">
-        <h3>contact info</h3>
-        <a href="#"> <i className="fab fa-facebook-f"></i> facebook </a>
-        <a href="#"> <i className="fab fa-twitter"></i> twitter </a>
-        <a href="#"> <i className="fab fa-instagram"></i> instagram </a>
-        <a href="#"> <i className="fab fa-linkedin"></i> linkedin </a>
-        <a href="#"> <i className="fab fa-pinterest"></i> pinterest </a>
-    </div>
-
-</div>
-
-<div className="credit"> Made with ❤️ | All rights reserved </div>
-
 </section>
 
 

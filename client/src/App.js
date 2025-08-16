@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useEffect } from "react";
+import React, { createContext, useReducer } from "react";
 import "./App.css";
 import { Route } from "react-router-dom";
 import Home from "./components/Home";
@@ -6,6 +6,7 @@ import Signin from "./components/Signin";
 import Signup from "./components/Signup";
 import Dashboard from "./components/Dashboard";
 import AdminSignin from "./components/AdminSignin";
+import AdminSignup from "./components/AdminSignup";
 import AdminSignout from "./components/AdminSignout";
 import Addbikes from "./components/dashboardComponents/Addbikes";
 import Rentbikereports from "./components/dashboardComponents/Rentbikereports";
@@ -50,6 +51,7 @@ const App = () => {
       </UserContext.Provider>
 
       <AdminContext.Provider value={{adminState, dispatchadmin}}>
+      <Route path="/adminsignup"> <AdminSignup/> </Route>
       <Route path="/adminsignin"> <AdminSignin/> </Route>
       <Route path="/adminsignout"> <AdminSignout/> </Route>
       <Route path="/dashboard"> <Dashboard/> </Route>

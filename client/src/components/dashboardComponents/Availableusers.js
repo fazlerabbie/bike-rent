@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useContext} from 'react'
 import {NavLink} from "react-router-dom";
+import Message from "../common/Message";
 
 import { AdminContext } from "../../App"
 const Availableusers = () => {
@@ -28,18 +29,45 @@ useEffect(() => {
   getallusers();
 }, [])
 
-let userIdFromDashBoard;
-  const deleteUser = (e) =>{
-    userIdFromDashBoard = e.target.id;
-    return fetch("/deleteUserfromdashboard", {
-      method: "POST",
-      headers:{
-          "Content-Type" : "application/json"
-      },
-      body: JSON.stringify({
-        userIdFromDashBoard
-      })
-  })
+const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const deleteUser = async (e) => {
+    const userIdFromDashBoard = e.target.id;
+
+    if (!window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
+      return;
+    }
+
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const response = await fetch("/deleteUserfromdashboard", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          userIdFromDashBoard
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage("User deleted successfully!");
+        // Refresh the users list
+        getallusers();
+      } else {
+        setMessage(data.message || "Failed to delete user");
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+      setMessage("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
 
@@ -127,6 +155,15 @@ let userIdFromDashBoard;
 
             <h1 className="heading"><span>Available Users</span></h1>
 
+            {message && (
+              <Message
+                type={message.includes('successfully') ? 'success' : 'error'}
+                message={message}
+                onClose={() => setMessage("")}
+                autoClose={true}
+              />
+            )}
+
             <table className = "salecartable">
                   <thead>
                     <tr>
@@ -143,7 +180,16 @@ let userIdFromDashBoard;
                   <td >{getUsers.name}</td>
                   <td >{getUsers.email}</td>
                   <td >{getUsers.phone}</td>
-                  <td ><button id = {getUsers._id} onClick={deleteUser} className="btn"><i className="fa fa-trash"></i></button></td>
+                  <td>
+                    <button
+                      id={getUsers._id}
+                      onClick={deleteUser}
+                      className="btn delete-btn"
+                      disabled={loading}
+                    >
+                      {loading ? <i className="fa fa-spinner fa-spin"></i> : <i className="fa fa-trash"></i>}
+                    </button>
+                  </td>
                    
                 </tr> 
             </tbody>

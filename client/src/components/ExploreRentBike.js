@@ -1,27 +1,39 @@
 import React, {useState, useEffect, useContext} from 'react'
 import { NavLink } from "react-router-dom";
+import LoadingButton from "./common/LoadingButton";
+import Message from "./common/Message";
 
 import { UserContext } from "../App"
 
 const ExploreRentBike = () => {
 
     const {state, dispatch} = useContext(UserContext)
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState("");
 
 
     const Loginbutton= () =>{
-        
+
         if(state){
-            return <div> 
-                <button className="btn"><NavLink className="nav-link" to="/signout">logout</NavLink></button>      
+            return <div>
+                <LoadingButton variant="secondary" size="small">
+                    <NavLink className="nav-link" to="/signout" style={{color: 'inherit', textDecoration: 'none'}}>
+                        Logout
+                    </NavLink>
+                </LoadingButton>
             </div>
         }
         else{
-            return <div>  
-                    <button className="btn"><NavLink className="nav-link" to="/signin">login</NavLink></button>
-                    
+            return <div>
+                <LoadingButton variant="primary" size="small">
+                    <NavLink className="nav-link" to="/signin" style={{color: 'inherit', textDecoration: 'none'}}>
+                        Login
+                    </NavLink>
+                </LoadingButton>
+
                 </div>
         }
-    
+
     }
 
 
@@ -29,6 +41,9 @@ const ExploreRentBike = () => {
     const [renttbikesData, setrenttbikesData] = useState([]);
 
     const exploreRentBike = async () =>{
+        setLoading(true);
+        setMessage("");
+
         try {
             const res = await fetch ('/exploreRentBikeData', {
                 method: 'GET',
@@ -36,16 +51,18 @@ const ExploreRentBike = () => {
 
             const data = await res.json();
 
-            setrenttbikesData(data)
-          
-
-            if(!res.status === 200){
-                const error = new Error(res.error);
-                throw error;
+            if(res.status === 200){
+                setrenttbikesData(data);
+                setMessage(`Found ${data.length} bikes available for rent`);
+            } else {
+                setMessage("Failed to load bikes. Please try again.");
             }
 
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            setMessage("Network error. Please check your connection and try again.");
+        } finally {
+            setLoading(false);
         }
     }
 

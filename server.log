@@ -1,0 +1,57 @@
+server is running on port 5001
+(node:44984) [DEP0170] DeprecationWarning: The URL mongodb://fazlerabbie:123456%40Dd@cluster0-shard-00-02.i1uui.mongodb.net:27017,cluster0-shard-00-01.i1uui.mongodb.net:27017,cluster0-shard-00-00.i1uui.mongodb.net:27017/?authSource=admin&replicaSet=atlas-2bamdg-shard-0&retryWrites=true&w=majority&appName=Cluster0&ssl=true is invalid. Future versions of Node.js will throw an error.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:44984) DeprecationWarning: collection.ensureIndex is deprecated. Use createIndexes instead.
+connection successful
+[]
+JsonWebTokenError: jwt must be provided
+    at module.exports [as verify] (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/jsonwebtoken/verify.js:53:17)
+    at authenticate (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/middelware/authenticate.js:9:33)
+    at Layer.handle [as handle_request] (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/layer.js:95:5)
+    at next (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/route.js:144:13)
+    at Route.dispatch (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/route.js:114:3)
+    at Layer.handle [as handle_request] (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/layer.js:95:5)
+    at /Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:284:15
+    at Function.process_params (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:346:12)
+    at next (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:280:10)
+    at Function.handle (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:175:3)
+    at router (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:47:12)
+    at Layer.handle [as handle_request] (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/layer.js:95:5)
+    at trim_prefix (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:328:13)
+    at /Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:286:9
+    at Function.process_params (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:346:12)
+    at next (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:280:10)
+JsonWebTokenError: jwt must be provided
+    at module.exports [as verify] (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/jsonwebtoken/verify.js:53:17)
+    at authenticate (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/middelware/authenticate.js:9:33)
+    at Layer.handle [as handle_request] (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/layer.js:95:5)
+    at next (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/route.js:144:13)
+    at Route.dispatch (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/route.js:114:3)
+    at Layer.handle [as handle_request] (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/layer.js:95:5)
+    at /Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:284:15
+    at Function.process_params (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:346:12)
+    at next (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:280:10)
+    at Function.handle (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:175:3)
+    at router (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:47:12)
+    at Layer.handle [as handle_request] (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/layer.js:95:5)
+    at trim_prefix (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:328:13)
+    at /Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:286:9
+    at Function.process_params (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:346:12)
+    at next (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:280:10)
+JsonWebTokenError: jwt must be provided
+    at module.exports [as verify] (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/jsonwebtoken/verify.js:53:17)
+    at authenticate (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/middelware/authenticate.js:9:33)
+    at Layer.handle [as handle_request] (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/layer.js:95:5)
+    at next (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/route.js:144:13)
+    at Route.dispatch (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/route.js:114:3)
+    at Layer.handle [as handle_request] (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/layer.js:95:5)
+    at /Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:284:15
+    at Function.process_params (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:346:12)
+    at next (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:280:10)
+    at Function.handle (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:175:3)
+    at router (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:47:12)
+    at Layer.handle [as handle_request] (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/layer.js:95:5)
+    at trim_prefix (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:328:13)
+    at /Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:286:9
+    at Function.process_params (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:346:12)
+    at next (/Users/fazlerabbi/Downloads/Bike-Rental-System/server/node_modules/express/lib/router/index.js:280:10)

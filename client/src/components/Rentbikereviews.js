@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react'
+import React, {useState, useEffect, useContext, useCallback} from 'react'
 import { NavLink, useLocation, useHistory } from "react-router-dom";
 
 import { UserContext } from "../App"
@@ -25,7 +25,7 @@ const Rentbikereviews = () => {
     });
     const [allrenttbikeReviews, setAllrenttbikeReviews] = useState([]);
 
-    const sendId = async () =>{
+    const sendId = useCallback(async () => {
         try {
             const res = await fetch("/sendReviewRentBikeId", {
                 method: "POST",
@@ -45,13 +45,13 @@ const Rentbikereviews = () => {
         } catch (error) {
             console.log(error)
         }
-    }
+    }, [selectedBikeId]);
 
     useEffect(() => {
         sendId();
-    }, [])
+    }, [sendId])
 
-    const reviewBikeData = async () =>{
+    const reviewBikeData = useCallback(async () => {
         try {
             const res = await fetch ('/getRentBikeReviews', {
                 method: 'GET',
@@ -71,8 +71,8 @@ const Rentbikereviews = () => {
             fileType : data.findBike.fileType,
             fileSize : data.findBike.fileSize
             })
-            
-            setUserData({...userData, id:data.findUser._id, name:data.findUser.name, email:data.findUser.email})
+
+            setUserData(prevData => ({...prevData, id:data.findUser._id, name:data.findUser.name, email:data.findUser.email}))
 
             if(!res.status === 200){
                 const error = new Error(res.error);
@@ -82,10 +82,11 @@ const Rentbikereviews = () => {
         } catch (error) {
             console.log(error)
         }
-    }
+    }, []);
+
     useEffect(() => {
         reviewBikeData();
-    }, [])
+    }, [reviewBikeData])
 
 
 
