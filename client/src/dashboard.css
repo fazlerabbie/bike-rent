@@ -632,6 +632,27 @@ body {
   background: var(--gradient-primary);
 }
 
+.form-card.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.form-card.disabled::before {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.form-card.disabled .form-header {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+}
+
+.form-card.disabled .form-header h2 {
+  color: var(--error-color);
+}
+
+.form-card.disabled .form-header p {
+  color: #dc2626;
+}
+
 .form-header {
   padding: 3rem 3rem 2rem;
   border-bottom: 1px solid var(--gray-200);

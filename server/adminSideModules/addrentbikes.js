@@ -10,9 +10,35 @@ const upload = multer({ dest: 'uploads/' });
 
 
 
-module.exports = router.post('/addrentbikes', upload.single("myrentfile"),  async(req, res, next)=>{
-    
+module.exports = router.post('/addrentbikes', adminAuthentication, upload.single("myrentfile"),  async(req, res, next)=>{
+
     try {
+            console.log('Add rent bike request received');
+            console.log('Request body:', req.body);
+            console.log('File info:', req.file ? {
+                originalname: req.file.originalname,
+                mimetype: req.file.mimetype,
+                size: req.file.size
+            } : 'No file');
+
+            if (!req.file) {
+                return res.status(400).json({
+                    success: false,
+                    error: "No image file uploaded"
+                });
+            }
+
+            // Validate required fields
+            const requiredFields = ['brand', 'model', 'year', 'color', 'seats', 'price', 'rent'];
+            for (const field of requiredFields) {
+                if (!req.body[field]) {
+                    return res.status(400).json({
+                        success: false,
+                        error: `${field} is required`
+                    });
+                }
+            }
+
             const data = new Rentbike({
                 brand : req.body.brand,
                 model : req.body.model,
@@ -24,12 +50,23 @@ module.exports = router.post('/addrentbikes', upload.single("myrentfile"),  asyn
                 fileName : req.file.originalname,
                 filePath : req.file.path,
                 fileType : req.file.mimetype,
-                fileSize : req.file.size, 
+                fileSize : req.file.size,
             });
+
             await data.save();
-            res.status(201).send("Data uploaded successfully")
+            console.log('Rent bike saved successfully:', data._id);
+
+            res.status(200).json({
+                success: true,
+                message: "Rent bike added successfully",
+                bikeId: data._id
+            });
     } catch (error) {
-        res.status(400).send(error.message);
+        console.error('Add rent bike error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message || "Failed to add rent bike"
+        });
     }
-   
+
 } )

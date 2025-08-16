@@ -124,6 +124,15 @@ const Rentabike = () => {
     };
 
     const proceedToCart = async (bikeData, bikeIndex) => {
+        // Check if user is logged in
+        if (!state) {
+            setMessage("Please log in to add items to cart.");
+            setTimeout(() => {
+                history.push('/signin');
+            }, 2000);
+            return;
+        }
+
         if (!rentHours || rentHours <= 0) {
             setMessage("Please enter valid rent hours (1-24)");
             return;
@@ -137,6 +146,7 @@ const Rentabike = () => {
                 headers:{
                     "Content-Type" : "application/json"
                 },
+                credentials: 'include', // Include cookies for authentication
                 body: JSON.stringify({
                     itemId: bikeData._id,
                     rentHours: parseInt(rentHours)
@@ -145,25 +155,33 @@ const Rentabike = () => {
 
             const data = await res.json();
 
-            if(res.status === 200 && data){
-                // Add to local cart
-                const cartItem = {
-                    id: bikeData._id,
-                    brand: bikeData.brand,
-                    model: bikeData.model,
-                    rentHours: parseInt(rentHours),
-                    pricePerHour: bikeData.rent,
-                    totalPrice: bikeData.rent * parseInt(rentHours),
-                    image: bikeData.filePath,
-                    addedAt: new Date().toISOString()
-                };
+            if(res.status === 200 || res.status === 201) {
+                if (data.success) {
+                    // Add to local cart
+                    const cartItem = {
+                        id: bikeData._id,
+                        brand: bikeData.brand,
+                        model: bikeData.model,
+                        rentHours: parseInt(rentHours),
+                        pricePerHour: bikeData.rent,
+                        totalPrice: bikeData.rent * parseInt(rentHours),
+                        image: bikeData.filePath,
+                        addedAt: new Date().toISOString()
+                    };
 
-                const newCartItems = [...cartItems, cartItem];
-                saveCartData(newCartItems);
+                    const newCartItems = [...cartItems, cartItem];
+                    saveCartData(newCartItems);
 
-                setMessage(`${bikeData.brand} ${bikeData.model} added to cart for ${rentHours} hours!`);
-                setRentHours('');
-                setBikeViews(prev => ({...prev, [bikeIndex]: 'bike'}));
+                    setMessage(data.message || `${bikeData.brand} ${bikeData.model} added to cart for ${rentHours} hours!`);
+                    setRentHours('');
+                    setBikeViews(prev => ({...prev, [bikeIndex]: 'bike'}));
+                } else {
+                    setMessage(data.error || "Something went wrong. Please try again.");
+                }
+            } else if (res.status === 401) {
+                setMessage("Please log in to add items to cart.");
+            } else if (res.status === 400) {
+                setMessage(data.error || "Invalid request. Please check your input.");
             } else {
                 setMessage(data.error || "Something went wrong. Please try again.");
             }
@@ -327,6 +345,43 @@ const Rentabike = () => {
                 />
             )}
 
+            {!state && (
+                <div style={{
+                    background: "linear-gradient(135deg, #ff6a00 0%, #ee5a24 100%)",
+                    color: "white",
+                    padding: "20px",
+                    textAlign: "center",
+                    margin: "20px auto",
+                    borderRadius: "15px",
+                    maxWidth: "800px",
+                    boxShadow: "0 10px 30px rgba(255, 106, 0, 0.3)"
+                }}>
+                    <h3 style={{margin: "0 0 10px 0", fontSize: "24px"}}>
+                        🔒 Login Required
+                    </h3>
+                    <p style={{margin: "0 0 15px 0", fontSize: "16px", opacity: "0.9"}}>
+                        Please log in to add bikes to your cart and make bookings
+                    </p>
+                    <NavLink
+                        to="/signin"
+                        style={{
+                            background: "rgba(255,255,255,0.2)",
+                            color: "white",
+                            padding: "12px 30px",
+                            borderRadius: "25px",
+                            textDecoration: "none",
+                            fontWeight: "600",
+                            fontSize: "16px",
+                            border: "2px solid rgba(255,255,255,0.3)",
+                            display: "inline-block",
+                            transition: "all 0.3s ease"
+                        }}
+                    >
+                        🚀 Login Now
+                    </NavLink>
+                </div>
+            )}
+
             <div className="rentbikebiked">
                 {rentBikesData.map((bikeData, index) => {
                     const currentView = bikeViews[index] || 'bike';
@@ -384,7 +439,7 @@ const Rentabike = () => {
                                         marginBottom: "15px",
                                         boxShadow: "0 4px 15px rgba(39, 174, 96, 0.3)"
                                     }}>
-                                        ₹{bikeData.rent}/hour
+                                        ${bikeData.rent}/hour
                                     </div>
 
                                     <div style={{display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap", marginTop: "20px"}}>
@@ -474,7 +529,7 @@ const Rentabike = () => {
                                             <strong style={{color: "#3498db"}}>Seats:</strong> {bikeData.seats}
                                         </div>
                                         <div style={{background: "linear-gradient(145deg, #e8f5e8, #d4edda)", padding: "15px", borderRadius: "10px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)"}}>
-                                            <strong style={{color: "#27ae60"}}>Rent Per Hour:</strong> ₹{bikeData.rent}
+                                            <strong style={{color: "#27ae60"}}>Rent Per Hour:</strong> ${bikeData.rent}
                                         </div>
                                     </div>
 
@@ -584,7 +639,7 @@ const Rentabike = () => {
                                                 color: "white",
                                                 margin: "0"
                                             }}>
-                                                ₹{bikeData.rent} per hour
+                                                ${bikeData.rent} per hour
                                             </p>
                                         </div>
                                     </div>
@@ -644,7 +699,7 @@ const Rentabike = () => {
                                                         fontSize: "18px",
                                                         margin: "0"
                                                     }}>
-                                                        Total Cost: ₹{bikeData.rent * parseInt(rentHours || 0)} for {rentHours} hours
+                                                        Total Cost: ${bikeData.rent * parseInt(rentHours || 0)} for {rentHours} hours
                                                     </p>
                                                 </div>
                                             )}
@@ -673,18 +728,22 @@ const Rentabike = () => {
                                                 variant="success"
                                                 size="medium"
                                                 loading={bookingLoading[bikeData._id]}
-                                                disabled={!rentHours || rentHours <= 0}
+                                                disabled={!rentHours || rentHours <= 0 || !state}
                                                 style={{
-                                                    background: bookingLoading[bikeData._id] ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.9)",
+                                                    background: bookingLoading[bikeData._id] ? "rgba(255,255,255,0.3)" :
+                                                               !state ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.9)",
                                                     border: "none",
                                                     borderRadius: "25px",
                                                     padding: "12px 24px",
                                                     fontWeight: "700",
                                                     fontSize: "14px",
-                                                    color: bookingLoading[bikeData._id] ? "white" : "#ff6a00"
+                                                    color: bookingLoading[bikeData._id] ? "white" :
+                                                           !state ? "#999" : "#ff6a00"
                                                 }}
+                                                title={!state ? "Please log in to add to cart" : ""}
                                             >
-                                                {bookingLoading[bikeData._id] ? "Adding to Cart..." : "🛒 Add to Cart"}
+                                                {bookingLoading[bikeData._id] ? "Adding to Cart..." :
+                                                 !state ? "🔒 Login Required" : "🛒 Add to Cart"}
                                             </LoadingButton>
                                         </div>
                                     </form>

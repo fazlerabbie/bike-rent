@@ -19,8 +19,11 @@ const adminAuthentication = async (req, res, next) =>{
         next();
 
     } catch (error) {
-        res.status(401).send('Unautorized: No token provided')
-        console.log(error);
+        console.log('Admin authentication error:', error.message);
+        res.status(401).json({
+            success: false,
+            error: 'Unauthorized: Admin login required'
+        });
     }
 }
 

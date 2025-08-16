@@ -102,6 +102,11 @@ const Addbikes = () => {
     const postRentData = async (e) =>{
         e.preventDefault();
 
+        if (!adminState) {
+            setRentMessage("Please log in as admin to add bikes.");
+            return;
+        }
+
         if (!validateRentForm()) {
             setRentMessage("Please fill all required fields");
             return;
@@ -129,13 +134,20 @@ const Addbikes = () => {
 
             const res = await fetch("/addrentbikes", {
                 method: "POST",
+                credentials: 'include', // Include cookies for admin authentication
                 body: rentData
             });
 
-            const data = await res.json();
+            let data;
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                data = await res.json();
+            } else {
+                data = { message: await res.text() };
+            }
 
             if (res.status === 200) {
-                setRentMessage("Rent bike added successfully!");
+                setRentMessage(data.message || "Rent bike added successfully!");
                 // Reset form completely
                 setRentBike({
                     brand: "", model: "", year: "", color: "", seats: "", price: "", rent: ""
@@ -146,12 +158,20 @@ const Addbikes = () => {
                 // Reset file input
                 const fileInput = document.getElementById('image');
                 if (fileInput) fileInput.value = '';
+            } else if (res.status === 401) {
+                setRentMessage("Please log in as admin to add bikes.");
+            } else if (res.status === 400) {
+                setRentMessage(data.error || "Invalid data. Please check all fields.");
             } else {
                 setRentMessage(data.error || "Failed to add rent bike. Please try again.");
             }
         } catch (error) {
-            setRentMessage("Network error. Please check your connection and try again.");
             console.error("Add rent bike error:", error);
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                setRentMessage("Network error. Please check your connection and try again.");
+            } else {
+                setRentMessage("An unexpected error occurred. Please try again.");
+            }
         } finally {
             setRentLoading(false);
         }
@@ -262,13 +282,13 @@ const Loginbutton= () =>{
       )}
 
       <div className="add-bike-form-container">
-        <div className="form-card">
+        <div className={`form-card ${!adminState ? 'disabled' : ''}`}>
           <div className="form-header">
             <h2>
               <i className="fas fa-motorcycle"></i>
               Bike Information
             </h2>
-            <p>Fill in the details for the new rental bike</p>
+            <p>{adminState ? "Fill in the details for the new rental bike" : "Admin login required to add bikes"}</p>
           </div>
 
           <form className="modern-bike-form" onSubmit={(e) => e.preventDefault()}>
@@ -520,6 +540,10 @@ const Loginbutton= () =>{
               <li>
                 <i className="fas fa-check"></i>
                 Ensure bike is in good condition
+              </li>
+              <li>
+                <i className="fas fa-user-shield"></i>
+                {adminState ? "Admin access verified" : "Admin login required"}
               </li>
             </ul>
           </div>
